@@ -116,6 +116,7 @@ The backend subproject:
  * In the production mode starts Express listening on port 3000 to serve from disk the build artifacts created by the client subproject .
  * In the development mode starts Express listening on the same port and working as a proxy for webpack-dev-server.
  * Implements HTTP caching arrangement which disables the caching for .html files and enables it for script bundles. A typical React application comes with .html files that are rather small whereas the bundles can be significantly larger. On the other hand, the build process keeps the names of .html files static and embeds a hash into the names of script bundles. As a result the caching arrangement ensures smooth deployment of versioning changes.
+
 ### SPA Configuration
 The optional splitting of a React application into multiple SPAs (each rendered by its own bundle) improves the application  loading time. It also brings development/testing benefits for medium to large applications. The `vendor` bundle contains `node_modules/` dependencies and is reused between SPAs so that there is no need to download it again when switching from one SPA to another.
 
@@ -177,6 +178,7 @@ No modifications are required for the backend which will be reconfigured to:
 To turn off code splitting using multiple SPAs simply leave one SPA in the SPA Configuration block.
 
 > Tip: Let's assume over the time the application has grown and acquired extensive reporting capabilities, perhaps with a reporting dashboard that imports many components. In this case the third SPA and its entry point `reporting.tsx` can be added to the SPA Configuration block. The entry point would import the dashboard and use it for rendering. Such an addition would take little time but bring performance and development/testing benefits. For example, some tests can focus on a React application which has the reporting SPA as the only entry in the SPA Configuration block thus taking the rest of the application out of the testing scope.
+
 ### Integration with UI and CSS Libraries
 Both libraries ([Semantic UI](https://react.semantic-ui.com) and [Typestyle](https://typestyle.github.io) respectively) provide React with the type safety afforded by Typescript.
 ### Testing
