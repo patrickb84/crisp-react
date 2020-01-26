@@ -33,7 +33,7 @@ This arrangement brings a security benefit: The clients running inside a browser
     - As a container deployment option suitable for a demonstration, you can build and deploy the container on Cloud Run. The prerequisites are to have a Google Cloud account with at least one project created and billing enabled.<br/>
 [![Run on Google Cloud](docs/cloudrun.png)](https://deploy.cloud.run?git_repo=https://github.com/winwiz1/crisp-react)<br/>
 The build will take a while due to free Cloud Shell using a free cloud VM with modest specs. After the build and deployment are finished you can click on the provided link and see the page rendered by the client.<br/><br/>
-:heavy_exclamation_mark: It is highly recommended to delete the created service when the demo is finished. The explanation why this is needed can be found in the [Containerisation](#containerisation) section. Delete the service by executing the following command:<br/>
+It is __highly recommended__ to delete the created service when the demo is finished. The explanation why this is needed can be found in the [Containerisation](#containerisation) section. Delete the service by executing the following command:<br/>
 `gcloud run services delete crisp-react --platform=managed --region=us-central1 --project=<project-name>`<br/>
 It can be conveniently executed from the Cloud Shell session opened during the deployment. Update the `region` with the one chosen during the deployment and replace `<project-name>` with your project name. Alternatively delete the service using Cloud Run [Console](https://console.cloud.google.com/run).
 
@@ -111,7 +111,7 @@ Install `yarn` if not already installed: `npm install yarn -g`
   </details>
 </div>
 
-The section can be concluded by optionally renaming the solution. Rename the top-level directory from `crisp-react` to `your-project` and set the `SPAs.appTitle` variable in the [`spa.config.js`](https://github.com/winwiz1/crisp-react/blob/master/client/config/spa.config.js) file accordingly. Ignore the rest of the file for a moment, it's covered in depth in the [SPA Configuration](#spa-configuration) section.
+<br/>The section can be concluded by optionally renaming the solution. Rename the top-level directory from `crisp-react` to `your-project` and set the `SPAs.appTitle` variable in the [`spa.config.js`](https://github.com/winwiz1/crisp-react/blob/master/client/config/spa.config.js) file accordingly. Ignore the rest of the file for a moment, it's covered in depth in the [SPA Configuration](#spa-configuration) section.
 
 ## Features
 ### Client and Backend Subprojects
@@ -128,7 +128,8 @@ The client subproject:
  * Starts webpack-dev-server listening on port 8080 in the development mode.
  * Creates build artifacts (html files, script bundles and source maps) in the production mode. The artifacts are meant to be copied over to the backend subproject to be served by Express.
  * Additionally can start an instance of Chrome controlled via Inspector protocol (with caching disabled for better debugging) and point it to either webpack-dev-server or the backend server.
-> webpack-dev-server can be referred to as 'devserver'.
+
+    > webpack-dev-server can be referred to as 'devserver'.
 
 The backend subproject:
  * In the production mode starts Express listening on port 3000 to serve from disk the build artifacts created by the client subproject .
