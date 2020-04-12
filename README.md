@@ -391,7 +391,7 @@ The steps:
 
 3. Use the DNS settings provided by the registrar to add a DNS record:<br/>
         Record Type: `CNAME`<br/>
-        Host or Name: `crisp-react`
+        Host or Name: `crisp-react`<br/>
         Value or Points To or Content: `xxxxx.herokudns.com`
 
     It will take some time for the new record to propagate across the globe. Once this delay is over, the Heroku app will be available from `crisp-react.yourdomain.com`.
