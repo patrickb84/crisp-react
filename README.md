@@ -347,8 +347,8 @@ Assuming the deployment demo in the [Project Highlights](#project-highlights) se
 ### Using Docker
 Install [Docker](https://docs.docker.com/get-docker/). To build a Docker container and start it, execute [`start-container.cmd`](https://github.com/winwiz1/crisp-react/blob/master/start-container.cmd) or [`start-container.sh`](https://github.com/winwiz1/crisp-react/blob/master/start-container.sh). Then point a browser to `localhost:3000`. Both files can also be executed from an empty directory in which case uncomment the two lines at the top. Moreover, it can be copied to a computer or VM that doesn't have NodeJS installed. The only prerequisites are Docker and Git.
 
- The `Dockerfile` produces a development build of the client as a workaround for the Cloud Run bug explained below. If you are not using Cloud Run, switch to the production build as explained in the [`Dockerfile`](https://github.com/winwiz1/crisp-react/blob/master/Dockerfile) comments.
- ### Using Heroku
+The `Dockerfile` produces a development build of the client as a workaround for the Cloud Run bug explained below. If you are not using Cloud Run, switch to the production build as explained in the [`Dockerfile`](https://github.com/winwiz1/crisp-react/blob/master/Dockerfile) comments.
+### Using Heroku
 Install [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli#download-and-install).  Then log to Heroku using the `heroku login` command. Execute the following commands to build and deploy a container:
 ```
 git clone https://github.com/winwiz1/crisp-react.git
