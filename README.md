@@ -188,7 +188,9 @@ The client subproject builds an application with SPAs defined by the SPA Configu
 ```
 Each SPA is defined using 3 pieces of data: name, entry point (e.g. the landing page component) and a boolean flag. Ignore the flag for a moment. There is also an `appTitle`, it provides the application-wide default setting for the `<title>` tag in the `<head>` section of all pages. The title can be easily overwritten as needed.
 
-SPA's name "first" is used to define the SPA's landing page e.g. `/first.html` and name the bundle that renders the SPA: `first<hash>.js`. More information about all the data pieces shown above is provided in the configuration file. The file is copied during the backend build from one subproject to another and used to configure the client, the backend and the unit tests.
+SPA's name "first" is used to define the SPA's landing page e.g. `/first.html` and name the bundle that renders the SPA: `first<hash>.js`. More information about all the configuration data pieces is provided in the configuration file comments. The file is copied during the backend build from the client subproject and used to configure the client, the backend and the unit tests.
+
+The demo [website](https://crisp-react.winwiz1.com/) built using the SPA configuration shown above is available.
 
 To reconfigure the application to have a separate SPA for login and another one for the rest of the application, change the SPA Configuration block as follows:
 ```js
@@ -210,7 +212,7 @@ To reconfigure the application to have a separate SPA for login and another one 
 ```
 and then follow the instructions provided in the configuration file comments.
 
-Since any SPA is comprised of the landing page component (entry point) and its imports, the coding to support the SPA reconfiguration above can start by making `login.tsx` render the login page: either directly or maybe with the help of an imported component that will ask for user credentials. Another component could render a page asking for alternative credentials e.g. biometrics or ask for multifactor authentication (MFA). 
+Since any SPA is comprised of the landing page component (entry point) and its imports, the coding to support the SPA reconfiguration can start by making `login.tsx` render the login page: either directly or maybe with the help of an imported component that will ask for user credentials. Another component could render a page asking for alternative credentials e.g. biometrics or ask for multifactor authentication (MFA).
 
 The entry point `app.tsx` would import the component responsible for rendering the page presented to the user after logging in. Express could potentially be modified to ensure only authenticated users can download the bundle for this SPA.
 
@@ -359,7 +361,7 @@ heroku stack:set container -a <app-name>
 heroku container:push web --recursive
 heroku container:release web
 ```
-> The `--recursive` option ensures the file `Dockerfile.web` is picked up  and production builds of the client are performed. Without this option `Dockerfile` is used instead and development builds of the client are produced.
+> The `--recursive` option ensures the file `Dockerfile.web` is picked up and a production build of the client is performed. Without this option `Dockerfile` is used instead and a development build of the client is produced.
 
 Replace the  `<app-name>` placeholder with your Heroku app name.  The app will have the URL: `<app-name>.herokuapp.com`.
 
