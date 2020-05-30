@@ -267,7 +267,7 @@ To finish, remove the breakpoint and stop the running debugging configuration (u
 When to use: Troubleshoot UI, inspect DOM tree, etc. provided backend data is not required.
 #### Build client for development or production
 To perform the development build execute in Terminal: `yarn build`. The build artifacts can be found under `client/dist` directory.<br/>
->:bulb: You might want to edit `client/webpack.config.js` file and change the [three](https://github.com/winwiz1/crisp-react/blob/master/client/webpack.config.js#L15-L19) `metaXxx` variables to alter the `<meta>` tags describing your website to the search engines.
+>You might want to edit `client/webpack.config.js` file and change the [three](https://github.com/winwiz1/crisp-react/blob/master/client/webpack.config.js#L15-L19) `metaXxx` variables to alter the `<meta>` tags describing your website to the search engines.
 
 To perform the production build execute in Terminal: `yarn build:prod`. The build artifacts including the bundles with various compressions can be found under the same directory. If a bundle is too small to benefit from compression then it won't be compressed.<br/>
 When to use: As a preparatory step when the backend is required. This step will be executed automatically by the backend usage scenarios below when needed.
