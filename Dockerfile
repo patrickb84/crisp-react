@@ -1,10 +1,11 @@
 # Used by Docker and Cloud Run
 
-FROM node:12.17.0-slim as build
+FROM node:12.18.1-slim as build
 RUN apt-get update -y && apt-get upgrade -y
 
 WORKDIR /crisp-react/server
 COPY --chown=node:node ./server/ .
+RUN yarn
 WORKDIR /crisp-react/client
 COPY --chown=node:node ./client/ .
 

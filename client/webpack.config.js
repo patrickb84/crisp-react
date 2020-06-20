@@ -65,6 +65,7 @@ const getWebpackConfig = (env, argv) => {
       chunkFilename: "[name].[hash].bundle.js",
       path: path.resolve(__dirname, "dist"),
       publicPath: "/static/",
+      crossOriginLoading: "anonymous",
     },
     optimization: {
       splitChunks: {
@@ -103,9 +104,9 @@ const getWebpackConfig = (env, argv) => {
         "process.env.DEVELOPMENT": JSON.stringify(isProduction === false)
       }),
       new ForkTsCheckerWebpackPlugin({
-        tslint: false,
-        useTypescriptIncrementalApi: true,
-        checkSyntacticErrors: true,
+        typescript: true,
+        eslint: undefined,
+        logger: { infrastructure: "console", issues: "console" }
       })
     ],
     devServer: {
@@ -137,11 +138,29 @@ const getWebpackConfig = (env, argv) => {
         chunks: [`${entryPoint}`, "vendor", "runtime"],
         headHtmlSnippet,
         links: [
-          "//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css",
+          {
+            rel: "dns-prefetch",
+            href: "//fonts.gstatic.com/"
+          },
+          {
+            rel: "dns-prefetch",
+            href: "//fonts.googleapis.com/"
+          },
+          {
+            rel: "stylesheet",
+            href: "//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css",
+            integrity: "sha384-JKIDqM48bt14NZpzl9v0AP36VK2C/X6RuSPfimxpoWdSANUXblZUX1cgdQw8cZUK",
+            crossorigin: "anonymous"
+          },
           {
             href: metaOwnUrl,
             rel: "canonical"
-          }
+          },
+          {
+            href: "/apple-touch-icon.png",
+            rel: "apple-touch-icon",
+            sizes: "180x180"
+          },
         ],
         meta: [
           { name: "viewport", content: "width=device-width, initial-scale=1.0, shrink-to-fit=no" },
@@ -164,11 +183,16 @@ const getWebpackConfig = (env, argv) => {
 
   if (isProduction) {
     const CompressionPlugin = require("compression-webpack-plugin");
+    const SriPlugin = require("webpack-subresource-integrity");
 
     config.plugins.push(
       new webpack.DefinePlugin({
         "process.env.NODE_ENV": JSON.stringify("production")
       }));
+    config.plugins.push(
+      new SriPlugin({
+      hashFuncNames: ["sha384"]
+    }));
     config.plugins.push(
       new CompressionPlugin({
         filename: '[path].br[query]',
