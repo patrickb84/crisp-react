@@ -368,10 +368,7 @@ If you own a domain name and intend to implement the optional steps described in
 ### Cloud Run Considerations
 The remainder of this section contains additional considerations that apply to deploying the solution on Cloud Run. The considerations are not specific to this solution and would be relevant for any React SPA.
 
-1. Although Cloud Run provides an ample free tier usage in terms of bandwidth and number of requests, you are billed for the incoming requests once the free usage threshold, 2 million calls per month, is exceeded. This scenario wouldn’t be infeasible if the  service URL is discovered and used to mount a Layer 7 DoS attack (or come close to it by emulating a significant workload). There is an additional cost for the running time exceeding its free threshold which can be exacerbated by the service scaling itself up under attack. Deleting the service promptly after a demonstration helps to mitigate this risk. Hopefully Google will make a configurable firewall with rate limiting available for Cloud Run running in the public access mode.
-
-2. Cloud Run in private access mode is a great product that offers simplicity, competitive pricing and seems to be geared towards microservices. Deducing the intended use of its public access mode is more challenging. The Google provided alternatives to the public access mode with ability to control networking ingress include Cloud Run for Anthos. This option allows to have an ingress controller but is more expensive and technically involved. Google App Engine (GAE) Flexible Environment is yet another option, it has access to a configurable firewall but [lacks](https://cloud.google.com/appengine/docs/flexible/nodejs/managing-projects-apps-billing) ability to set spending limits. The inability to control spending makes GAE more suitable for non-public websites with access controlled by Google Identity-Aware Proxy [(IAP)](https://cloud.google.com/iap/docs/). It's worth noting that currently IAP [cannot](https://github.com/ahmetb/cloud-run-faq/issues/26) be used to control access to Cloud Run. Finally there is an option to combine Cloud Run with Firebase Hosting but it doesn't seem to add too much certainty with respect to expenses.
-
+Although Cloud Run provides an ample free tier usage in terms of bandwidth and number of requests, you are billed for the incoming requests once the free usage threshold, 2 million calls per month, is exceeded. This scenario wouldn’t be infeasible if the  service URL is discovered and used to mount a Layer 7 DDoS attack (or come close to it by emulating a significant workload). There is an additional cost for the running time exceeding its free threshold which can be exacerbated by the service scaling itself up under attack. Deleting the service promptly after a demonstration helps to mitigate this risk. Hopefully Google will make a configurable firewall with rate limiting available for Cloud Run running in the public access mode.
 ## Custom Domain and CDN
 This section compliments the deployment described under the [Using Heroku](#using-heroku) heading. It maps Heroku app URL to a custom domain you own. After that, Cloudflare CDN is added to Heroku servers<br/>
 ![Deploy](docs/deploy.png)
@@ -415,7 +412,7 @@ The steps:
 
     The order of the rules is important. Since only one page rule is applied, the more specific API rule should be on the top.
 
-    If the Free plan is used the maximum cache duration is limited to 2 hours. It causes a cache miss with subsequent re-caching every 2 hours for all .html pages, script bundles etc.
+    The maximum cache duration was limited to 2 hours on the Free plan, however Cloudflare has removed this restriction. For example, you can set the duration  to 7 days and ensure the subsequent re-caching occurs every week for all .html pages, script bundles etc.
 
 After the steps are completed the Heroku app will be using distributed caching and a free SSL certificate for the custom domain. Also the cache related statistics, monitoring and the breakdown of incoming requests by country will be available from Cloudflare even on the Free plan.
 
@@ -425,7 +422,7 @@ You can test DNS resolution for `crisp-react.yourdomain.com` using tools like `n
 Consider the following steps to add the desired functionality:
 * Start with [Client Usage Scenarios](#client-usage-scenarios) to develop UI in absence of API data. For example, develop the initial look and feel of the login page. Take advantage of the Live Reloading to speed up the development. The client scenarios ensure the backend is not started needlessly.
 *  Implement an API endpoint in the backend, in addition or instead the existing sample API endpoint. For example, a login endpoint. Technically it can be done by renaming the `SampleXxx` pattern in the names of source files and classes with `LoginXxx`, then modifying the classes as needed. This approach can be observed in the sibling [Crisp BigQuery](https://github.com/winwiz1/crisp-bigquery) repository, the `SampleXxx` pattern was replaced with `BigQueryXxx`.
-*  Switch to [Backend Usage Scenarios](#backend-usage-scenarios) to consume the API endpoint in the client.  Modify the API related classes `BackendManager` and `BackendRequest` as needed. Keep taking advantage of the Live Reloading that is supported for client and backend code.
+*  Switch to [Backend Usage Scenarios](#backend-usage-scenarios) to consume the API endpoint in the client.  Modify the API related classes `BackendManager` and `BackendRequest` as needed. Keep taking advantage of Live Reloading that is supported for client and backend code.
 
 ## Pitfall Avoidance
 One of the goals pursued by the [Backend Usage Scenarios](#backend-usage-scenarios) is to avoid the following common pitfalls:
@@ -490,6 +487,70 @@ A: Open the Settings page of the Chrome DevTools and ensure 'Enable JavaScript s
 
 Q: Breakpoints in VS Code are not hit. How can it be fixed.<br/>
 A: Try to remove the breakpoint and set it again. If the breakpoint is in the client code, refresh the page.
+
+Q: I'm debugging the backend in VS Code by running one of the debugging configurations specified in [launch.json](https://github.com/winwiz1/crisp-react/blob/master/server/.vscode/launch.json). How can I get one of the yarn scripts (e.g. `copyfiles` or `prestart` in the `scripts` section of [package.json](https://github.com/winwiz1/crisp-react/blob/master/server/package.json)) executed before the debugging starts?
+
+> This question is inspired by the issue #11
+
+A: What gets executed before a debugging configuration starts is controlled by its optional `preLaunchTask` setting. This setting refers to a task from [tasks.json](https://github.com/winwiz1/crisp-react/blob/master/server/.vscode/tasks.json) by the task name. The name is defined by the tasks'`label` setting. To get a yarn script executed, add another task (let's call it `prestart`) to run the `prestart` script and chain both tasks using `dependsOn`:
+
+<div>
+  <details>
+    <summary>tasks.json</summary>
+    <br />
+    <pre>
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "tsc",
+      "type": "typescript",
+      "tsconfig": "tsconfig.json",
+      "problemMatcher": [
+        "$tsc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "tsc-watch",
+      "type": "typescript",
+      "tsconfig": "tsconfig.json",
+      "option": "watch",
+      "problemMatcher": [
+        "$tsc-watch"
+      ],
+      "isBackground": true,
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "new"
+      },
+      "dependsOn": [
+        "prestart",
+      ]
+    },
+    {
+      "label": "kill process in terminal",
+      "type": "process",
+      "command": "${command:workbench.action.terminal.kill}"
+    },
+    {
+      "label": "prestart",
+      "type": "npm",
+      "script": "prestart",
+      "presentation": {
+        "reveal": "never"
+      }
+    }
+  ]
+}
+    </pre>
+  </details>
+</div>
 
 Q: I need to add Redux.<br/>
 A: Have a look at the sibling Crisp BigQuery repository created by cloning and renaming this solution. It uses Redux.

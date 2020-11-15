@@ -51,7 +51,6 @@ class Server {
     this.m_app.use([
       helmet(isProduction()? {
         contentSecurityPolicy: {
-          browserSniff: false,
           directives: {
             frameSrc: ["'self'"],
             defaultSrc: ["'self'"],
@@ -105,7 +104,8 @@ class Server {
       } else {
         if (entryPoint === Server.s_robotsName) {
           Server.setCacheHeaders(res);
-          res.send(Server.getRobotsContent());
+          res.type('text/plain');
+          res.send("User-agent: *\nAllow: /");
         } else {
           // Emulate historyApiFallback in webpack-dev-server
           res.redirect(303, "/");
@@ -210,12 +210,6 @@ class Server {
   //   /^((first)|(second)|(runtime)|(vendor))\.\w{16,32}\.bundle\.js((\.map)|(\.gz)|(\.br))?$/
   private static getClientBuildArtifactsRegex(): RegExp {
     return new RegExp(`^(${Server.getLandingPages()}|(runtime)|(vendor))\\.\\w{16,32}\\.bundle\\.js((\\.map)|(\\.gz)|(\\.br))?$`);
-  }
-
-  // The content of the robots.txt
-  private static getRobotsContent(): string {
-    // Modify permissive robots.txt as needed
-    return "User-agent: *<br/>Allow: /";
   }
 
   private static setCacheHeaders (res: express.Response): void {
