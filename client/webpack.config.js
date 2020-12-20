@@ -61,8 +61,8 @@ const getWebpackConfig = (env, argv) => {
       ]
     },
     output: {
-      filename: "[name].[hash].bundle.js",
-      chunkFilename: "[name].[hash].bundle.js",
+      filename: "[name].[fullhash].bundle.js",
+      chunkFilename: "[name].[fullhash].bundle.js",
       path: path.resolve(__dirname, "dist"),
       publicPath: "/static/",
       crossOriginLoading: "anonymous",
@@ -82,9 +82,7 @@ const getWebpackConfig = (env, argv) => {
       ...(isProduction && {
         minimizer: [
           new TerserPlugin({
-            cache: false,
             parallel: true,
-            sourceMap: false,         // set to true if debugging of production build needed
             terserOptions: {
               keep_classnames: false,
               mangle: true,
@@ -93,7 +91,8 @@ const getWebpackConfig = (env, argv) => {
               output: {
                 comments: false,
               }
-            }
+            },
+            extractComments: false
           })
         ]
       }),
@@ -162,18 +161,12 @@ const getWebpackConfig = (env, argv) => {
             sizes: "180x180"
           },
         ],
-        meta: [
-          { name: "viewport", content: "width=device-width, initial-scale=1.0, shrink-to-fit=no" },
-          { name: "description", content: metaDescription },
-          { name: "keywords", content: metaKeywords },
-          { name: "robots", content: "index, follow" },
-          { property: "og:title", content: configuredSPAs.appTitle },
-          { property: "og:type", content: "website" },
-          { property: "og:url", content: metaOwnUrl },
-          { property: "og:description", content: metaDescription },
-          { property: "twitter:title", content: configuredSPAs.appTitle },
-          { property: "twitter:description", content: metaDescription },
-        ],
+        meta: {
+          viewport:    "width=device-width, initial-scale=1.0, shrink-to-fit=no",
+          description: metaDescription,
+          keywords:    metaKeywords,
+          robots:      "index, follow",
+        },
         minify: false,
       })
     );
