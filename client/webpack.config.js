@@ -13,11 +13,12 @@ const headHtmlSnippetPath = path.join("src", "entrypoints", "head-snippet.html")
 const headHtmlSnippet = fs.existsSync(headHtmlSnippetPath) ?
   fs.readFileSync(headHtmlSnippetPath, "utf8") : undefined;
 const metaDescription = "Skeleton website built using Crisp React \
-https://github.com/winwiz1/crisp-react boilerplate. Consists of two sample \
-React SPAs with optional build-time SSR turned on for the second SPA.";
-const metaKeywords = "React, TypeScript, Express, webpack, NodeJS, Jest";
+boilerplate. Consists of two sample React SPAs with optional build-time \
+SSR turned on for the first SPA.";
+const metaKeywords = "React,Express,TypeScript,boilerplate,SSR,Docker";
 const metaOwnUrl = "https://crisp-react.winwiz1.com/";
-
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 
 configuredSPAs.verifyParameters(verifier);
 
@@ -30,6 +31,7 @@ const getWebpackConfig = (env, argv) => {
 
   const config = {
     mode: isProduction ? "production" : "development",
+    target: ["web", "es5"],
     devtool: "source-map",
     entry: configuredSPAs.getEntrypoints(),
     module: {
@@ -50,7 +52,32 @@ const getWebpackConfig = (env, argv) => {
         },
         {
           test: /\.css$/,
-          use: ["style-loader", "css-loader"],
+          use: [
+            isProduction?
+              {
+                loader: MiniCssExtractPlugin.loader,
+                options: {
+                  emit: true,
+                },
+              } :
+              {
+                loader: "style-loader",
+                options: {
+                  injectType: "singletonStyleTag",
+                },
+              },
+            {
+              loader: "css-loader",
+              options: {
+                // 'true' ensures class selector names are mangled to be unique.
+                // The key-value pairs (with non-mangled e.g. taken from the .css
+                // file selector names used as the keys and mangled ones being
+                // the values) are injected into the default export object. We
+                // import it as 'styles'.
+                modules: true
+              }
+            }
+          ],
         },
       ]
     },
@@ -74,7 +101,14 @@ const getWebpackConfig = (env, argv) => {
             test: /node_modules/,
             chunks: "initial",
             name: "vendor",
-            enforce: true
+            enforce: true,
+            maxInitialSize: 1000000
+          },
+          styles: {
+            name: "styles",
+            type: "css/mini-extract",
+            chunks: "all",
+            enforce: true,
           },
         },
       },
@@ -93,7 +127,10 @@ const getWebpackConfig = (env, argv) => {
               }
             },
             extractComments: false
-          })
+          }),
+          new CssMinimizerPlugin({
+            parallel: true,
+          }),
         ]
       }),
     },
@@ -129,7 +166,8 @@ const getWebpackConfig = (env, argv) => {
     config.plugins.push(
       new HtmlWebpackPlugin({
         template: require("html-webpack-template"),
-        inject: true,
+        inject: "body",
+        scriptLoading: "blocking",
         title: configuredSPAs.appTitle,
         appMountId: "app-root",
         alwaysWriteToDisk: true,
@@ -138,17 +176,19 @@ const getWebpackConfig = (env, argv) => {
         headHtmlSnippet,
         links: [
           {
-            rel: "dns-prefetch",
-            href: "//fonts.gstatic.com/"
-          },
-          {
-            rel: "dns-prefetch",
-            href: "//fonts.googleapis.com/"
+            rel: "preload",         // imported by the SUI stylesheet below
+            href: "https://fonts.googleapis.com/css?family=Lato:400,700,400italic,700italic&subset=latin",
+            as: "style",
           },
           {
             rel: "stylesheet",
-            href: "//cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css",
+            href: "https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css",
             integrity: "sha384-JKIDqM48bt14NZpzl9v0AP36VK2C/X6RuSPfimxpoWdSANUXblZUX1cgdQw8cZUK",
+            crossorigin: "anonymous"
+          },
+          {
+            rel: "preconnect",
+            href: "https://fonts.gstatic.com/",
             crossorigin: "anonymous"
           },
           {
@@ -162,7 +202,7 @@ const getWebpackConfig = (env, argv) => {
           },
         ],
         meta: {
-          viewport:    "width=device-width, initial-scale=1.0, shrink-to-fit=no",
+          viewport:    "width=device-width, initial-scale=1.0",
           description: metaDescription,
           keywords:    metaKeywords,
           robots:      "index, follow",
@@ -177,35 +217,44 @@ const getWebpackConfig = (env, argv) => {
   if (isProduction) {
     const CompressionPlugin = require("compression-webpack-plugin");
     const SriPlugin = require("webpack-subresource-integrity");
+    const compressionRegex = /\.(js|css|html|ttf|svg|woff|woff2|eot)$/;
 
     config.plugins.push(
       new webpack.DefinePlugin({
         "process.env.NODE_ENV": JSON.stringify("production")
-      }));
-    config.plugins.push(
-      new SriPlugin({
-      hashFuncNames: ["sha384"]
-    }));
+      })
+    );
     config.plugins.push(
       new CompressionPlugin({
         filename: "[path][base].br",
         algorithm: "brotliCompress",
-        test: /\.js$|\.css$|\.html$/,
+        test: compressionRegex,
         compressionOptions: {
           level: 11,
         },
         threshold: 10240,
         minRatio: 0.8,
         deleteOriginalAssets: false,
-      }));
+      })
+    );
     config.plugins.push(
       new CompressionPlugin({
         filename: "[path][base].gz",
         algorithm: "gzip",
-        test: /\.js$|\.css$|\.html$/,
+        test: compressionRegex,
         threshold: 10240,
         minRatio: 0.8
-      }));
+      })
+    );
+    config.plugins.push(
+      new MiniCssExtractPlugin({
+        linkType: "text/css",
+        filename: "[name].[fullhash].css",
+      })
+    );
+    config.plugins.push(
+      new SriPlugin.SubresourceIntegrityPlugin()
+    );
   }
 
   return config;

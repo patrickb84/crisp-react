@@ -3,26 +3,46 @@
  * responsible for rendering the menu.
  */
 import * as React from "react";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Menu } from "semantic-ui-react";
+import { style } from "typestyle";
 import * as SPAs from "../../config/spa.config";
+import styles from "../css/navigation.css";
+
+const cssStyle: Record<string, string> = {
+  menu: styles["menu"],
+};
+
+const cssMenu = style({
+  $nest: {
+    "div.header": {
+      fontSize: "1.1em !important"
+    },
+    "& a": {
+      fontSize: "0.9em !important",
+      paddingTop: "1em !important",
+      paddingBottom: "1em !important",
+    },
+  }
+});
 
 export const Navigation: React.FC = _props => {
   return (
-    <nav>
-      <Menu vertical compact borderless>
+    <nav className={cssStyle.menu}>
+      <Menu vertical className={cssMenu}>
         <Menu.Item>
           <Menu.Header>First SPA</Menu.Header>
-          <Menu.Menu>
-            <Menu.Item as={Link} to="/a">ComponentA</Menu.Item>
-            <Menu.Item as={Link} to="/b">ComponentB</Menu.Item>
-            <Menu.Item as={Link} to="/namelookup">NameLookup</Menu.Item>
+          <Menu.Menu className={cssMenu}>
+            <Menu.Item header as={NavLink} exact to="/" children="Overview" />
+            <Menu.Item header as={NavLink} to="/a" children="ComponentA" />
+            <Menu.Item header as={NavLink} to="/lighthouse" children="Lighthouse" />
+            <Menu.Item header as={NavLink} to="/namelookup" children="NameLookup" />
           </Menu.Menu>
         </Menu.Item>
         <Menu.Item>
           <Menu.Header>Second SPA</Menu.Header>
           <Menu.Menu>
-            <Menu.Item href={`/${SPAs.getNames()[1]}.html`}>ComponentC</Menu.Item>
+            <Menu.Item href={`/${SPAs.getNames()[1]}.html`}>ComponentB</Menu.Item>
           </Menu.Menu>
         </Menu.Item>
       </Menu>
