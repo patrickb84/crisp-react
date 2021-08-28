@@ -74,7 +74,10 @@ const getWebpackConfig = (env, argv) => {
                 // file selector names used as the keys and mangled ones being
                 // the values) are injected into the default export object. We
                 // import it as 'styles'.
-                modules: true
+                // 'false' means class selector names are left intact.
+                modules: {
+                  auto: (filepath) => filepath.endsWith("-style.css"),
+                }
               }
             }
           ],
@@ -102,7 +105,7 @@ const getWebpackConfig = (env, argv) => {
             chunks: "initial",
             name: "vendor",
             enforce: true,
-            maxInitialSize: 1000000
+            maxInitialSize: isProduction ? 1000000 : undefined
           },
           styles: {
             name: "styles",
@@ -146,18 +149,30 @@ const getWebpackConfig = (env, argv) => {
       })
     ],
     devServer: {
-      index: `/${configuredSPAs.getRedirectName()}.html`,
-      publicPath: "/static/",
-      contentBase: path.join(__dirname, "dist"),
-      compress: false,
+      allowedHosts: "localhost",
+      bonjour: false,
+      client: {
+        logging: "info",
+        overlay: { errors: true, warnings: false },
+        progress: true,
+      },
+      devMiddleware: {
+        index: `/${configuredSPAs.getRedirectName()}.html`,
+        publicPath: "/static/",
+        serverSideRender: false,
+        writeToDisk: true,
+      },
+      static: {
+        directory: path.join(__dirname, "dist"),
+      },
       hot: true,
-      inline: true,
+      liveReload: true,
       port: 8080,
-      writeToDisk: true,
       historyApiFallback: {
         index: `${configuredSPAs.getRedirectName()}.html`,
         rewrites: configuredSPAs.getRewriteRules()
-      }
+      },
+      watchFiles: ["src/**", `${path.join(__dirname, "dist")}`],
     },
     context: path.resolve(__dirname),
   };
